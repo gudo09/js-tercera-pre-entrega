@@ -3,6 +3,25 @@ import {arrayPokedex} from "./pokedex.js"
 import {habilidadesEN_ES} from "./habilidades.js"
 
 
+
+/*
+  FALTA IMPLEMENTAR:
+    - MOSTRAR MENSAJE DE QUE NO SE ENCONTRO NADA CON LA BÚSQUEDA
+    - COMPLETAR LA BARRA DE BUSQUEDA CON UN <DATALIST>
+    - FILTRAR POR ID
+    - FILTRAR POR TIPOS
+    - ORDENAR ALFABETICAMENTE
+    - BOTON DE FAVORITOS
+    - ALMACENAR FAVORITOS EN EL LOCAL STORAGE
+    - FILTRAR POR FAVORITOS
+    - FILTRAR POR RANGO DE ESTADISTICAS (SOLO PARA PROYECTO FINAL)
+    - MOSTRAR POKEMON ALEATORIO (SOLO PARA PROYECTO FINAL)
+    - VALIDAR FORMULARIOS
+*/
+
+
+
+
 /*
 const Pokemon = function (id, nombre, tipos, habilidades, estadisticas) {
   this.id = id,
@@ -31,54 +50,90 @@ let arrayPokedex = [
 console.log(arrayPokedex)
 */
 
+//
+refrescarPokedex(arrayPokedex);
 
+//crear busqueda
+const divTools = document.querySelector('#tools');
+divTools.setAttribute('class', 'py-16 mx-8');
 
+const divBuscar = document.createElement('div');
+divBuscar.setAttribute('class', 'w-fit h-12 bg-red-700 rounded-full' );
 
-let pokedexHTML = document.querySelector('#pokedex');
-for (const pokemon of arrayPokedex) {
-  crearDiseñoCard(pokemon);
-}
+const lblBuscar = document.createElement('label');
+lblBuscar.setAttribute('class', 'text-white  font-bold tracking-wider px-4 ');
+lblBuscar.textContent = "Buscar pokémon";
+divBuscar.appendChild(lblBuscar);
 
-//AÑADO EL EFECTO DE LA LIBRERÍA SCROLL REVEAL A LAS CARDS DE LA POKEDEX
-ScrollReveal().reveal('.card-pokemon', {
-  duration: 500,
-  reset: true,
-  rotate: {y: 50},
-  scale: 0.85
+const inputBuscar = document.createElement('input');
+inputBuscar.setAttribute('class', 'px-4 h-full rounded-r-full');
+inputBuscar.id = 'inputBuscar';
+
+inputBuscar.addEventListener('keyup', (e) => {
+  const nombreBuscado = inputBuscar.value.toLowerCase().trim();
+  const resultadoBusqueda = arrayPokedex.filter( pokemon => pokemon.name.includes(nombreBuscado) );
+  refrescarPokedex(resultadoBusqueda);
 });
+
+divBuscar.appendChild(inputBuscar);
+
+divTools.appendChild(divBuscar);
+
+console.log(divTools);
+
+
+
+
+
+
+function animacionCards(){
+  //AÑADO EL EFECTO DE LA LIBRERÍA SCROLL REVEAL A LAS CARDS DE LA POKEDEX
+  ScrollReveal().reveal('.card-pokemon', {
+    duration: 500,
+    reset: true,
+    rotate: {y: 50},
+    scale: 0.85
+  });
+}
 
 function capitalize(cadena) {
   return cadena.charAt(0).toUpperCase() + cadena.slice(1);
 }
 
-function crearDiseñoCard(pokemon) {
-  //INICIALIZO LA CARD DEL POKEMON
-  const card = document.createElement('div');
-  card.setAttribute("class","card-pokemon flex flex-col justify-between bg-red-700 p-6 rounded h-[50rem] w-[25rem] text-lg text-white shadow-lg shadow-black");
+function refrescarPokedex(listadoPokedex) {
+  const pokedexHTML = document.querySelector('#pokedex');
+  pokedexHTML.innerHTML = "";
 
-  //PARTE SUPERIOR DE LA CARD DEL POKEMON
-  const cardSuperior = document.createElement('div');
-
-  cardSuperior.appendChild(maquetarIDPokedex(pokemon));
-  cardSuperior.appendChild(maquetarImagenPokedex(pokemon));
-  cardSuperior.appendChild(maquetarNombrePokedex(pokemon));
-  cardSuperior.appendChild(maquetarTiposPokedex(pokemon));
-  cardSuperior.appendChild(maquetarHabilidadesPokedex(pokemon));
-
-  card.appendChild(cardSuperior);
-
-
-  //PARTE INFERIOR DE LA CARD DEL POKEMON
-  const cardInferior = document.createElement('div');
-
-  cardInferior.appendChild(maquetarEstadisticasPokedex(pokemon));
-
+  for (const pokemon of listadoPokedex) {
+    //INICIALIZO LA CARD DEL POKEMON
+    const card = document.createElement('div');
+    card.setAttribute("class","card-pokemon flex flex-col justify-between bg-red-700 p-6 rounded h-[50rem] w-[25rem] text-lg text-white shadow-lg shadow-black");
   
-  card.appendChild(cardInferior);
-
-
-  //UNO LAS PARTES SUPERIOR E INFERIOR DE LA CARD DEL POKEMON
-  pokedexHTML.appendChild(card);
+    //PARTE SUPERIOR DE LA CARD DEL POKEMON
+    const cardSuperior = document.createElement('div');
+  
+    cardSuperior.appendChild(maquetarIDPokedex(pokemon));
+    cardSuperior.appendChild(maquetarImagenPokedex(pokemon));
+    cardSuperior.appendChild(maquetarNombrePokedex(pokemon));
+    cardSuperior.appendChild(maquetarTiposPokedex(pokemon));
+    cardSuperior.appendChild(maquetarHabilidadesPokedex(pokemon));
+  
+    card.appendChild(cardSuperior);
+  
+  
+    //PARTE INFERIOR DE LA CARD DEL POKEMON
+    const cardInferior = document.createElement('div');
+  
+    cardInferior.appendChild(maquetarEstadisticasPokedex(pokemon));
+  
+    
+    card.appendChild(cardInferior);
+  
+  
+    //UNO LAS PARTES SUPERIOR E INFERIOR DE LA CARD DEL POKEMON
+    pokedexHTML.appendChild(card);
+    animacionCards();
+  }
 };
 
 function indiceDeHabilidad (arreglo, i) {
@@ -164,7 +219,7 @@ function maquetarImagenPokedex(pokemon) {
 function maquetarNombrePokedex(pokemon) {
   //CREO UNA ETIQUETA <div> PARA QUE MUESTRE EL NOMBRE DEL POKEMON
   const pNombre = document.createElement('p');
-  pNombre.setAttribute("class", "font-extrabold font- text-center text-3xl py-2");
+  pNombre.setAttribute("class", "font-extrabold text-center text-3xl py-2");
   pNombre.textContent = capitalize(pokemon.name);
 
   return pNombre
