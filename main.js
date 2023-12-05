@@ -6,9 +6,8 @@ import {habilidadesEN_ES} from "./habilidades.js"
 
 /*
   FALTA IMPLEMENTAR:
-    - MOSTRAR MENSAJE DE QUE NO SE ENCONTRO NADA CON LA BÚSQUEDA
-    - COMPLETAR LA BARRA DE BUSQUEDA CON UN <DATALIST>
-    - FILTRAR POR ID
+  ✅- MOSTRAR MENSAJE DE QUE NO SE ENCONTRO NADA CON LA BÚSQUEDA
+  ✅- FILTRAR POR ID 
     - FILTRAR POR TIPOS
     - ORDENAR ALFABETICAMENTE
     - BOTON DE FAVORITOS
@@ -53,35 +52,11 @@ console.log(arrayPokedex)
 //
 refrescarPokedex(arrayPokedex);
 
-//crear busqueda
+
 const divTools = document.querySelector('#tools');
-divTools.setAttribute('class', 'py-16 mx-8');
+divTools.setAttribute('class', 'py-16 mx-8 flex flex-col');
 
-const divBuscar = document.createElement('div');
-divBuscar.setAttribute('class', 'w-fit h-12 bg-red-700 rounded-full' );
-
-const lblBuscar = document.createElement('label');
-lblBuscar.setAttribute('class', 'text-white  font-bold tracking-wider px-4 ');
-lblBuscar.textContent = "Buscar pokémon";
-divBuscar.appendChild(lblBuscar);
-
-const inputBuscar = document.createElement('input');
-inputBuscar.setAttribute('class', 'px-4 h-full rounded-r-full');
-inputBuscar.id = 'inputBuscar';
-
-inputBuscar.addEventListener('keyup', (e) => {
-  const nombreBuscado = inputBuscar.value.toLowerCase().trim();
-  const resultadoBusqueda = arrayPokedex.filter( pokemon => pokemon.name.includes(nombreBuscado) );
-  refrescarPokedex(resultadoBusqueda);
-});
-
-divBuscar.appendChild(inputBuscar);
-
-divTools.appendChild(divBuscar);
-
-console.log(divTools);
-
-
+formularioBuscar();
 
 
 
@@ -197,9 +172,108 @@ function traducirEstadisticasEspanol (estadistica) {
       return "defensa especial"
     case "speed":
       return "velocidad"
-    default:
-      break;
-  }
+      default:
+        break;
+      }
+    }
+    
+  function formularioBuscar() {
+
+    function buscador(valorBuscado, filtro){
+      let resultadoBusqueda = [];
+      filtro === "nombre" 
+        ? resultadoBusqueda = arrayPokedex.filter( pokemon => pokemon.name.includes(valorBuscado.toLowerCase().trim()) )
+        : resultadoBusqueda = arrayPokedex.filter( pokemon => pokemon.id === parseInt(valorBuscado.trim()) );
+      refrescarPokedex(resultadoBusqueda);
+    }
+
+    //CREAR FORMULARIO BUSQUEDA
+    const divTools = document.querySelector('#tools');
+    
+    const formBuscar = document.createElement('form');
+    divTools.appendChild(formBuscar);
+    formBuscar.setAttribute('class', 'w-4/12 bg-red-700 p-4 border-solid grid grid-cols-5 gap-y-4' );
+    formBuscar.addEventListener('submit', (e) =>{
+      e.preventDefault();
+      //buscador();
+    });
+    
+    const lblBuscarNombre = document.createElement('label');
+    formBuscar.appendChild(lblBuscarNombre);
+    const inputBuscarNombre = document.createElement('input');
+    formBuscar.appendChild(inputBuscarNombre);
+    const lblBuscarID = document.createElement('label');
+    formBuscar.appendChild(lblBuscarID);
+    const inputBuscarID = document.createElement('input');
+    formBuscar.appendChild(inputBuscarID);
+    
+
+
+
+
+
+      lblBuscarNombre.setAttribute('class', 'text-white font-bold px-4 col-span-2');
+      lblBuscarNombre.textContent = `Nombre del pokemon`;
+      
+
+      inputBuscarNombre.setAttribute('class', 'px-2 py-1 col-span-3');
+
+      inputBuscarNombre.addEventListener('keyup',(e) => {
+        e.preventDefault();
+        e.target.value === "" ? refrescarPokedex(arrayPokedex): buscador(e.target.value, "nombre");
+      });
+
+      //--------------------------BLANQUEO EL INPUT ID SI HAGO FOCO--------------------------
+      inputBuscarNombre.addEventListener('focus',(e) => {
+        inputBuscarID.value = "";
+      });
+
+
+      
+      
+      lblBuscarID.setAttribute('class', 'text-white font-bold px-4 col-span-2');
+      lblBuscarID.textContent = `ID del pokemon`;
+
+      inputBuscarID.setAttribute('class', 'px-2 py-1 col-span-3');
+      inputBuscarID.setAttribute("type", "number");
+      inputBuscarID.setAttribute("min", 1);
+      inputBuscarID.setAttribute("placeholder", "Sólo números");
+      inputBuscarID.setAttribute("size", 4);
+
+      //--------------------------REFRESCO CUANTO EL BUSCADOR DEL ID QUEDA EN BLANCO--------------------------
+      inputBuscarID.addEventListener('keyup',(e) => {
+        e.preventDefault();
+        e.target.value === "" ? refrescarPokedex(arrayPokedex): buscador(e.target.value, "id");
+      });
+
+      //--------------------------REFRESCO CON EL EVENTO INPUT, SI SE EXCEDE DE LA CANTIDAD MAXIMA DE LA POKEDEX MUESTRA UN MESAJE--------------------------
+      inputBuscarID.addEventListener('input', (e) => {
+        document.querySelector('#sinResultados').classList.add('hidden');
+        if (e.target.value > arrayPokedex.length) {
+          e.target.value = arrayPokedex.length;
+          document.querySelector('#sinResultados').classList.remove('hidden');
+          document.querySelector('#sinResultados').textContent = `La cantidad máxima de la pokedex es de ${arrayPokedex.length} pokémon actualmente \nY éste es el último pokémon de momento.`;
+          buscador(e.target.value, "id");
+        }else{
+          buscador(e.target.value, "id");
+        }
+      });
+
+      //--------------------------BLANQUEO EL INPUT NOMBRE SI HAGO FOCO--------------------------
+      inputBuscarID.addEventListener('focus',(e) => {
+        inputBuscarNombre.value = "";
+      });
+
+
+      /*
+      //--------------------------BOTON BUSCAR--------------------------
+      const btnBuscar = document.createElement('button')
+      formBuscar.appendChild(btnBuscar);
+      btnBuscar.setAttribute('type', 'submit');
+      btnBuscar.setAttribute('class', 'h-full pl-4 pr-8 text-white font-bold col-span-2	');
+      btnBuscar.textContent = 'Buscar';
+      */
+
 }
 
 function maquetarImagenPokedex(pokemon) {
