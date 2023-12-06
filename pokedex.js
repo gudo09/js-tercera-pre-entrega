@@ -1,4 +1,4 @@
-export const arrayPokedex = [
+export const pokedexJS = [
   {
     "id": 1,
     "name": "bulbasaur",
