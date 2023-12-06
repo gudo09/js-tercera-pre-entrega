@@ -3,7 +3,9 @@ import {habilidadesEN_ES} from "./habilidades.js"
 import {pokedexJS} from "./pokedex.js"
 
 let pokedexCompleta = [];
-pokedexEnLocalStorage();
+let listaFavoritos = [];
+
+conectarLocalStorage();
 
 /*
   FALTA IMPLEMENTAR:
@@ -61,12 +63,20 @@ formularioBuscar();
 
 
 
-function pokedexEnLocalStorage(){
-  localStorage.getItem( 'pokedexCompleta' ) === JSON.stringify(pokedexJS) && localStorage.getItem( 'pokedexCompleta' )
-    ? pokedexCompleta = JSON.parse( localStorage.getItem('pokedexCompleta' ))
-    : localStorage.removeItem('pokedexCompleta')
-      pokedexCompleta = pokedexJS
-      localStorage.setItem( 'pokedexCompleta', JSON.stringify(pokedexCompleta ));
+function conectarLocalStorage(){
+  if (localStorage.getItem( 'pokedexCompleta' ) === JSON.stringify(pokedexJS) && localStorage.getItem( 'pokedexCompleta' ) ) {
+    pokedexCompleta = JSON.parse( localStorage.getItem('pokedexCompleta' ));
+  }else{
+    localStorage.removeItem('pokedexCompleta');
+    pokedexCompleta = pokedexJS;
+    localStorage.setItem( 'pokedexCompleta', JSON.stringify(pokedexCompleta ));
+  }
+
+
+  if (localStorage.getItem('listaFavoritos') !== null) {
+    listaFavoritos = JSON.parse(localStorage.getItem('listaFavoritos'));
+    console.log(listaFavoritos);
+  }
 }
 
 function animacionCards(){
@@ -326,21 +336,50 @@ function maquetarFavoritoCard(pokemon) {
   const $botonFavoritoCard = document.createElement('input');
   $botonFavoritoCard.setAttribute("type","image");
   $botonFavoritoCard.setAttribute("class","bg-white aspect-square w-12 p-2 rounded-full justify-self-end");
-  $botonFavoritoCard.src = "./assets/images/heart.svg";
+  
+  !listaFavoritos.some(x => x.id == pokemon.id)
+    ? $botonFavoritoCard.src = "./assets/images/heart.svg"
+    : $botonFavoritoCard.src = "./assets/images/heart-fill.svg"
+
   
 
   $botonFavoritoCard.addEventListener("click", (e) => {
     e.preventDefault();
     //console.log(e.target.getAttribute("src"))
     
-    e.target.getAttribute("src") === "./assets/images/heart.svg"
-      ? e.target.setAttribute("src","./assets/images/heart-fill.svg")
-      : e.target.setAttribute("src","./assets/images/heart.svg")
-
+    if (e.target.getAttribute("src") === "./assets/images/heart.svg") {
+      agregarFavorito(pokemon);
+      e.target.setAttribute("src","./assets/images/heart-fill.svg");
+    } else {
+      eliminarFavorito(pokemon);
+      e.target.setAttribute("src","./assets/images/heart.svg");
+    }
   });
   
 
   return $botonFavoritoCard;
+}
+
+function agregarFavorito(pokemon) {
+
+  if (! listaFavoritos.some(x => x.id === pokemon.id)) {
+    listaFavoritos.push(pokemon);
+    localStorage.setItem('listaFavoritos', JSON.stringify(listaFavoritos));
+    console.log(listaFavoritos);
+  }
+
+}
+
+function eliminarFavorito(pokemon) {
+  const resultado = listaFavoritos.findIndex(x => x.id === pokemon.id);
+  listaFavoritos.splice(resultado,1)
+
+  localStorage.setItem('listaFavoritos', JSON.stringify(listaFavoritos));
+
+  
+  console.log(resultado);
+  console.log(listaFavoritos);
+
 }
 
 function maquetarTiposPokedex(pokemon) {
